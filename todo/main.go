@@ -68,7 +68,41 @@ func mapCompleted(completed int) (bool) {
 	return false
 }
 
+var noTodoFoundResponse = gin.H{"status": http.StatusNotFound, "message": "No todo found!"}
+
 func FetchSingleTodo(c *gin.Context) {
+	var todo Todo
+	todoId := c.Param("id")
+	db := Database()
+	db.First(&todo, todoId)
+
+	if todo.ID == 0 {
+		c.JSON(http.StatusNotFound, noTodoFoundResponse)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": mapTodoToDto(&todo)})
+}
+
+func UpdateTodo(c *gin.Context) {
+	var todo Todo
+	todoId := c.Param("id")
+
+	db := Database()
+	db.First(&todo, todoId)
+
+	if todo.ID == 0 {
+		c.JSON(http.StatusNotFound, noTodoFoundResponse)
+		return
+	}
+
+	db.Model(&todo).Update("title", c.PostForm("title"))
+	db.Model(&todo).Update("completed", c.PostForm("completed"))
+
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Todo updates successfully!"})
+}
+
+func DeleteTodo(c *gin.Context) {
 	var todo Todo
 	todoId := c.Param("id")
 	db := Database()
@@ -79,14 +113,8 @@ func FetchSingleTodo(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": mapTodoToDto(&todo)})
-}
-
-func UpdateTodo(c *gin.Context) {
-
-}
-func DeleteTodo(c *gin.Context) {
-
+	db.Delete(&todo)
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Todo deleted successfully!"})
 }
 
 func Database() *gorm.DB {
