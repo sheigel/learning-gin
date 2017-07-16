@@ -44,6 +44,7 @@ func FetchAllTodo(c *gin.Context) {
 
 	if len(todos) <= 0 {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": mapTodosToDtos(todos)})
@@ -51,18 +52,36 @@ func FetchAllTodo(c *gin.Context) {
 
 func mapTodosToDtos(todos []Todo) (result []TransformedTodo) {
 	for _, todo := range todos {
-		completed := false
-		if todo.Completed == 1 {
-			completed = true
-		}
-		result = append(result, TransformedTodo{ID: todo.ID, Title: todo.Title, Completed: completed})
+		result = append(result, mapTodoToDto(&todo))
 	}
 	return
 }
 
-func FetchSingleTodo(c *gin.Context) {
-
+func mapTodoToDto(todo *Todo) TransformedTodo {
+	return TransformedTodo{ID: todo.ID, Title: todo.Title, Completed: mapCompleted(todo.Completed)}
 }
+
+func mapCompleted(completed int) (bool) {
+	if completed == 1 {
+		return true
+	}
+	return false
+}
+
+func FetchSingleTodo(c *gin.Context) {
+	var todo Todo
+	todoId := c.Param("id")
+	db := Database()
+	db.First(&todo, todoId)
+
+	if todo.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No todo found!"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": mapTodoToDto(&todo)})
+}
+
 func UpdateTodo(c *gin.Context) {
 
 }
