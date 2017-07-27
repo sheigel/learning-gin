@@ -14,10 +14,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http/httputil"
+	"os"
 )
 
 var db *sql.DB
-var err error
 
 type Claims struct {
 	Username string `json:"username"`
@@ -30,9 +30,7 @@ type Login_data struct {
 }
 
 func main() {
-
-	db, err = sql.Open("mysql", "gotest:1234@tcp(db:3306)/demo")
-
+	db = connectToDb()
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/profile", validate(protectedProfile))
@@ -40,6 +38,24 @@ func main() {
 
 	log.Println("Listenning!!!")
 	http.ListenAndServe(":9000", nil)
+}
+
+func connectToDb() *sql.DB {
+	db, err := sql.Open("mysql", "gotest:1234@tcp(db:3306)/demo")
+
+	if err != nil {
+		log.Printf("Couldn't connect to database! Error: %s", err)
+		os.Exit(-1)
+	}
+
+	err = db.Ping()
+
+	if err != nil {
+		log.Printf("Couldn't connect to database! Error: %s", err)
+		os.Exit(-1)
+	}
+
+	return db
 }
 
 func loggingMiddleware(handlerFunc http.HandlerFunc) func(w http.ResponseWriter, r *http.Request) {
