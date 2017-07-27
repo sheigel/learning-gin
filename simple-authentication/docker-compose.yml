@@ -11,6 +11,11 @@ services:
       - db
   db:
     image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: "demo"
+      MYSQL_USER: gotest
+      MYSQL_PASSWORD: 1234
     volumes:
       - ./db:/docker-entrypoint-initdb.d
     environment:

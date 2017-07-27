@@ -3,3 +3,8 @@ CREATE TABLE users(
     username VARCHAR(50),
     password VARCHAR(120)
 );
+
+INSERT INTO users SET username = 'sheigel', password = 'asdf';
+
+
+SELECT * FROM users;
