@@ -31,7 +31,7 @@ type Login_data struct {
 
 func main() {
 	db = connectToDb()
-	http.HandleFunc("/signup", signup)
+	http.HandleFunc("/register", register)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/profile", validate(protectedProfile))
 	http.HandleFunc("/logout", validate(logout))
@@ -66,7 +66,7 @@ func loggingMiddleware(handlerFunc http.HandlerFunc) func(w http.ResponseWriter,
 	}
 }
 
-func signup(res http.ResponseWriter, req *http.Request) {
+func register(res http.ResponseWriter, req *http.Request) {
 	var t *Login_data = &Login_data{"t", "t"}
 
 	err := json.NewDecoder(req.Body).Decode(t)
@@ -75,7 +75,7 @@ func signup(res http.ResponseWriter, req *http.Request) {
 	}
 	defer req.Body.Close()
 
-	log.Printf("signup data %v", *t)
+	log.Printf("register data %v", *t)
 
 	var db_username string
 	err = db.QueryRow("SELECT username FROM users WHERE username=?", t.Username).Scan(&db_username)
