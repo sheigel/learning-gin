@@ -7,6 +7,6 @@ RUN go get github.com/go-sql-driver/mysql golang.org/x/crypto/bcrypt github.com/
 
 COPY . .
 
-RUN go build
+RUN go build ./service
 
 ENTRYPOINT ./auth
